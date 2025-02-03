@@ -32,16 +32,11 @@ The primary challenge of traditional WAFs like ModSecurity is their reliance on 
 
 ## **Architecture**
 ```plaintext
-+----------------------------------+
-| Client (malicious or legitimate) |
-+---------------------+------------+
-                      |
-                      v
-        +----------------------------------+
-        |          Apache + ModSecurity    |
-        +----------------------------------+
-                          |
-                          v
+      +----------------------------------+
+      | Client (malicious or legitimate) |
+      +-----------------+----------------+
+                        |
+                        v
     +-----------------------------------------+
     | Flask Server with Combined Decision Logic|
     +-----------------------------------------+
@@ -49,9 +44,9 @@ The primary challenge of traditional WAFs like ModSecurity is their reliance on 
            ----------------------------------
            |                                |
            v                                v
-+--------------------+        +----------------------------+
-| ModSecurity Rules  |        | Machine Learning Predictions|
-+--------------------+        +----------------------------+
++--------------------+        +-----------------------------+
+|   ML Predictions   |        | Apache with ModSecurity WAF |
++--------------------+        +-----------------------------+
            |                                |
            +--------------------------------+
                           |
@@ -99,21 +94,7 @@ Enable the Core Rule Set (CRS):
 ```bash
 sudo apt install modsecurity-crs
 ```
-Add custom rules by editing:
-```bash
-sudo nano /etc/modsecurity/rules/custom_rules.conf
-```
-Example custom rule:
-```plaintext
-SecRule REQUEST_BODY ".*" \
-    "phase:2,\
-    capture,\
-    t:none,\
-    exec:/bin/bash -c '/usr/local/bin/python3.9 /etc/modsecurity/decision_script.py',\
-    id:900001,\
-    log,\
-    msg:'Call to the script fot the combined decision.'"
-```
+
 Restart Apache:
 ```bash
 sudo systemctl restart apache2
