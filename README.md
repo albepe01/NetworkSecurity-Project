@@ -5,14 +5,20 @@ This project demonstrates a practical approach to enhancing Web Application Fire
 
 By combining these two complementary approaches, we can mitigate both known and unknown (zero-day) SQL injection threats through continuous learning and rule-based protection.
 
+We initially developed this project using a Flask server to test the newly introduced combined decision logic mechanism. In the second phase, we eliminated reliance on the Flask server by designing a dedicated single-decision script, executed by the Apache Web Server, to analyze each incoming request and filter out malicious ones. Finally, we reintroduced Flask to create a simple mock server, solely for simulating real-world routes requiring protection.  
+
+More specifically, Apache is now configured to intercept requests sent to specific secured endpoints of the mock server, acting as a reverse proxy. This setup ensures that all incoming traffic is analyzed and filtered before reaching the backend, enhancing security, reducing server load, and enabling centralized threat management. By decoupling security from the application layer, this approach improves maintainability and scalability, making it easier to adapt to emerging threats.
+
+
 ---
 
 ## **Table of Contents**
 1. [Project Overview](#project-overview)  
 2. [Key Features](#key-features)  
 3. [Architecture](#architecture)  
-4. [Installation&Usage](#installation)  
-5. [Directory Structure](#directory-structure)  
+4. [Installation](#installation)
+5. [Usage](#usage) 
+6. [Directory Structure](#directory-structure)  
 
 ---
 
@@ -24,7 +30,8 @@ The primary challenge of traditional WAFs like ModSecurity is their reliance on 
 ## **Key Features**
 - **Hybrid Decision System:** Combines ModSecurity’s rule-based approach with real-time predictions from a trained machine learning model.  
 - **Adversarial Training Protection:** Uses **WAF-A-MoLE**-generated adversarial samples to train the machine learning model, providing better resilience to bypass attempts.  
-- **Apache Integration:** Fully integrated with the Apache web server to simulate realistic traffic and enforce blocking decisions.  
+- **Apache Integration:** Fully integrated with the Apache web server to simulate realistic traffic and enforce blocking decisions.
+- **Reverse Proxy Functionality:** Acts as a reverse proxy, intercepting and filtering all incoming requests before they reach the backend, reducing server load and centralizing threat management. 
 - **Customizable Models:** Easily switch between different classifiers (Random Forest, SVM, Logistic Regression) to compare performance.  
 - **Extensive Evaluation:** Performance metrics such as accuracy, ROC curves, and F1 scores are evaluated for combined and individual decisions.  
 
@@ -107,9 +114,45 @@ python3 scripts/server_flask.py
 ```
 You should see a message indicating the server is running at http://127.0.0.1:6000.
 
-Usage
-To test the system and evaluate its performance you can now launch the client side and send queries.
-The client will then automatically send payloads to the server via ModSecurity and display the combined decision.
+
+### Step 6 (Optional): Set up the Apache server with the modified WAF
+The Apache server can analyze the payload of the request using the enhanced ModSecurity firewall, without relying on flask servers. ModSecurity must be modified in its configuration files, i.e. /etc/modsecurity/modsecurity.conf, to include a custom rule in its configuration. The custom rule is /etc/modsecurity/rules/custom_rule.conf, which calls an intermediary .sh script used as an interface to a python file, i.e. /etc/modsecurity/call_script.sh and /etc/modsecurity/decision_script.py.
+For this step, simply replace the following files with the modified ones provided:
+```bash
+mv modsecurity.conf /etc/modsecurity/modsecurity.conf
+mv custom_rule.conf /etc/modsecurity/rules/custom_rule.conf
+```
+And download and correctly position the call_script.sh and the decision_script.py files, providing the necessary permissions:
+```bash
+cp call_script.sh /etc/modsecurity/
+chmod +x /etc/modsecurity/call_script.sh
+cp decision_script.py /etc/modsecurity/rules/
+```
+
+
+### Step 7 (Optional): Set up Apache as a reverse proxy
+First, set up the mock server simply downloading the server.py file and running:
+```bash
+python3 server.py
+```
+The Apache server can act as a reverse proxy, intercepting and filtering out malicious requests directed to a mock server on specific endpoints. In this case, the /test route is protected by the configuration, while the /hidden_test endpoint is left unsecured for testing purposes, demonstrating that the configuration file allows for a more granular level of protection. To set up the configuration, simply replace the default Apache configuration file (/etc/apache2/sites-available/000-default.conf) with the one in the proxy folder.
+
+
+## **Usage**
+
+
+To test the system and evaluate its performance you can now launch the client side and send queries, the client will then automatically send payloads to the server via ModSecurity and display the combined decision. 
+Instead, to test the decision script and the reverse proxy functionality of Apache for Step 6 and 7 of the installation phase, simply run curl requests. 
+
+For instance this is a legitimate request that is accepted by the enhanced WAF, with response code 200 (ACCEPTED):
+```bash
+curl -X POST "http://localhost/test" --data "query=SELECT * FROM orders"
+```
+An this instead a malicious requets that is blocked with response code 403 (FORBIDDEN):
+```bash
+curl -X POST "http://localhost/test" --data "query=SELECT * FROM users WHERE username='admin' OR '1'='1'"
+```
+
 
 ## **Directory Structure**
 ```bash
