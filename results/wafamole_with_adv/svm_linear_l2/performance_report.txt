@@ -1,0 +1,14 @@
+📊 Risultati delle prestazioni:
+🔹 Accuratezza: 0.7979
+🔹 F1-Score: 0.8808
+🔹 AUC-ROC: 0.6004
+
+📄 Rapporto di classificazione:
+              precision    recall  f1-score   support
+
+     Allowed       0.94      0.21      0.34      2000
+     Blocked       0.79      1.00      0.88      6000
+
+    accuracy                           0.80      8000
+   macro avg       0.86      0.60      0.61      8000
+weighted avg       0.83      0.80      0.74      8000

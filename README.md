@@ -18,7 +18,6 @@ More specifically, Apache is now configured to intercept requests sent to specif
 3. [Architecture](#architecture)  
 4. [Installation](#installation)
 5. [Usage](#usage) 
-6. [Directory Structure](#directory-structure)  
 
 ---
 
@@ -37,29 +36,15 @@ The primary challenge of traditional WAFs like ModSecurity is their reliance on 
 
 ---
 
-## **Architecture**
-```plaintext
-      +----------------------------------+
-      | Client (malicious or legitimate) |
-      +-----------------+----------------+
-                        |
-                        v
-    +-----------------------------------------+
-    | Flask Server with Combined Decision Logic|
-    +-----------------------------------------+
-                          |
-           ----------------------------------
-           |                                |
-           v                                v
-+--------------------+        +-----------------------------+
-|   ML Predictions   |        | Apache with ModSecurity WAF |
-+--------------------+        +-----------------------------+
-           |                                |
-           +--------------------------------+
-                          |
-                          v
-            Combined Decision (Allow or Block)
-```
+## **Testing Architecture**
+![Testing Architecture](images/testing_architecture.png)
+
+## **Apache Server WAF Architecture**
+![Apache Server WAF Architecture](images/apache_server_WAF_architecture.png)
+
+## **Apache Server Reverse Proxy Architecture**
+![Apache Server Reverse Proxy Architecture](images/apache_server_reverse_proxy_architecture.png)
+
 ---
 
 ## **Installation**
@@ -152,38 +137,3 @@ An this instead a malicious requets that is blocked with response code 403 (FORB
 ```bash
 curl -X POST "http://localhost/test" --data "query=SELECT * FROM users WHERE username='admin' OR '1'='1'"
 ```
-
-
-## **Directory Structure**
-```bash
-NetworkSecurity-Project/
-│
-├── ModSecurity/
-│  
-├── modsec-advlearn/
-│   ├── data/                      
-│   │   ├── dataset/              # Normal and adversarial datasets (modsec)
-│   │   ├── data_wafamole/        # Normal and adversarial datasets (wafamole)
-│   │   ├── models/               # Trained models on modsec dataset 
-│   │   └── models_wafamole/      # Trained models on wafamole dataset 
-│   ├── src/
-│   ├── scripts/                   # Scripts of the repository ModSec-AdvLearn
-│   ├── new_scripts/               # Our Added Scripts
-│   │   ├── client.py
-│   │   ├── ...                  
-│   │   └── server_flask.py              
-│   └── new_results/               # Our Results
-│
-├── pymodsecurity/
-│
-└── WAF-A-MoLE/                  
-```
-
-
-
-
-
-
-
-
-
