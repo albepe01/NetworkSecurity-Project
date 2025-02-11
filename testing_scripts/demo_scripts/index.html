@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ModSecurity & Machine Learning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: navy;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .container {
+            display: flex;
+            margin: 20px;
+        }
+        .left-panel {
+            width: 50%;
+            padding-right: 10px;
+        }
+        .right-panel {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .box {
+            border: 2px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .box.waiting {
+            background-color: gray;
+        }
+        .box.allowed {
+            background-color: green;
+        }
+        .box.blocked {
+            background-color: red;
+        }
+        select, input[type="text"] {
+            padding: 5px;
+            margin: 10px 0;
+            width: 95%;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px;
+            border: none;
+            cursor: pointer;
+            width: 95%; /* Bottoni della stessa larghezza dei campi */
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .form-container {
+            width: 100%;
+        }
+        .form-container input {
+            width: 95%;
+        }
+        /* Centratura dei titoli */
+        h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        Test ModSecurity & Machine Learning
+    </div>
+
+    <!-- Bottoni per cambiare modalità -->
+    <div class="buttons-container">
+        <button onclick="showDatasetPayloads()">Dataset Payloads</button>
+        <button onclick="showCustomPayloads()">Custom Payloads</button>
+    </div>
+
+    <div id="dataset-payloads" class="container hidden">
+        <!-- Left Panel for Dataset Payloads -->
+        <div class="left-panel">
+            <h2>Dataset Payloads</h2>
+            <select id="dataset-select">
+                <option value="">Seleziona un dataset</option>
+                <!-- Opzioni dinamiche da aggiungere tramite JavaScript -->
+            </select>
+            <select id="model-select">
+                <option value="">Seleziona un modello</option>
+                <!-- Opzioni dinamiche da aggiungere tramite JavaScript -->
+            </select>
+            <button onclick="submitDatasetPayload()">Invia Dataset</button>
+        </div>
+
+        <!-- Right Panel for Payloads -->
+        <div class="right-panel">
+            <div id="legit-box" class="box waiting">Waiting...</div>
+            <div id="mal-box" class="box waiting">Waiting...</div>
+            <div id="adv-box" class="box waiting">Waiting...</div>
+            <div id="adv-ms-box" class="box waiting">Waiting...</div>
+        </div>
+    </div>
+
+    <div id="custom-payloads" class="container hidden">
+        <!-- Left Panel for Custom Payloads -->
+        <div class="left-panel">
+            <h2>Custom Payloads</h2>
+            <div class="form-container">
+                <form id="custom-payload-form">
+                    <input type="text" id="custom-payload" placeholder="Inserisci payload custom">
+                    <button type="submit">Invia Payload</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Panel for Custom Payload Result -->
+        <div class="right-panel">
+            <div id="custom-payload-result" class="box waiting">Waiting...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simulazione di lista di dataset e modelli
+        const datasets = ['Dataset 1', 'Dataset 2', 'Dataset 3'];
+        const models = ['Model A', 'Model B', 'Model C'];
+
+        // Popola i selettori con i dataset e modelli
+        const datasetSelect = document.getElementById('dataset-select');
+        const modelSelect = document.getElementById('model-select');
+
+        datasets.forEach(dataset => {
+            const option = document.createElement('option');
+            option.value = dataset;
+            option.textContent = dataset;
+            datasetSelect.appendChild(option);
+        });
+
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            modelSelect.appendChild(option);
+        });
+
+        // Funzione per inviare dataset payload
+        function submitDatasetPayload() {
+            const dataset = datasetSelect.value;
+            const model = modelSelect.value;
+            if (!dataset || !model) {
+                alert('Seleziona sia un dataset che un modello.');
+                return;
+            }
+
+            // Simulazione invio payload e aggiornamento dei box
+            document.getElementById('legit-box').classList.replace('waiting', 'allowed');
+            document.getElementById('legit-box').textContent = 'Allowed';
+
+            document.getElementById('mal-box').classList.replace('waiting', 'blocked');
+            document.getElementById('mal-box').textContent = 'Blocked';
+
+            document.getElementById('adv-box').classList.replace('waiting', 'blocked');
+            document.getElementById('adv-box').textContent = 'Blocked';
+
+            document.getElementById('adv-ms-box').classList.replace('waiting', 'allowed');
+            document.getElementById('adv-ms-box').textContent = 'Allowed';
+        }
+
+        // Funzione per inviare custom payload
+        const customPayloadForm = document.getElementById('custom-payload-form');
+        customPayloadForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const customPayload = document.getElementById('custom-payload').value;
+            if (!customPayload) {
+                alert('Inserisci un payload custom.');
+                return;
+            }
+
+            // Simulazione invio custom payload e aggiornamento del box
+            const resultBox = document.getElementById('custom-payload-result');
+            resultBox.classList.replace('waiting', 'allowed');
+            resultBox.textContent = 'Allowed';
+        });
+
+        // Funzioni per cambiare tra le modalità
+        function showDatasetPayloads() {
+            document.getElementById('dataset-payloads').classList.remove('hidden');
+            document.getElementById('custom-payloads').classList.add('hidden');
+        }
+
+        function showCustomPayloads() {
+            document.getElementById('custom-payloads').classList.remove('hidden');
+            document.getElementById('dataset-payloads').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>
