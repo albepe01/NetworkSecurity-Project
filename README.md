@@ -120,7 +120,11 @@ First, set up the mock server simply downloading the server.py file and running:
 ```bash
 python3 server.py
 ```
-The Apache server can act as a reverse proxy, intercepting and filtering out malicious requests directed to a mock server on specific endpoints. In this case, the /test route is protected by the configuration, while the /hidden_test endpoint is left unsecured for testing purposes, demonstrating that the configuration file allows for a more granular level of protection. To set up the configuration, simply replace the default Apache configuration file (/etc/apache2/sites-available/000-default.conf) with the one in the proxy folder.
+The Apache server can act as a reverse proxy, intercepting and filtering out malicious requests directed to a mock server on specific endpoints. In this case, the /test route is protected by the configuration, while the /hidden_test endpoint is left unsecured for testing purposes, demonstrating that the configuration file allows for a more granular level of protection. To set up the configuration, simply replace the default Apache configuration file with the one in the proxy folder and the modsecurity configuration with the new one in the same folder:
+```bash
+mv 000-default.conf /etc/apache2/sites-available/000-default.conf
+mv modsecurity.conf /etc/modsecurity/modsecurity.conf
+```
 
 
 ## **Usage**
